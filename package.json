@@ -1,13 +1,39 @@
 {
-  "name": "google-maps-mcp",
+  "name": "mcp-server-google-maps",
   "version": "1.0.0",
-  "private": true,
+  "description": "MCP Server for Google Maps — 15 tools covering Places, Routes, Static Maps, Street View, Geocoding, Timezone, Address Validation and more.",
   "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "mcp-server-google-maps": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "prepare": "npm run build"
   },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "google-maps",
+    "places-api",
+    "routes-api",
+    "geocoding",
+    "llm",
+    "claude",
+    "ai-tools"
+  ],
+  "author": "apurvaumredkar",
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apurvaumredkar/google-maps-mcp.git"
+  },
+  "homepage": "https://github.com/apurvaumredkar/google-maps-mcp#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.10.0",
     "zod": "^3.24.0"
