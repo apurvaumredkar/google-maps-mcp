@@ -68,7 +68,29 @@ curl http://localhost:3003/health
 # {"status":"ok","service":"google-maps-mcp"}
 ```
 
-### Option B — Build from source
+### Option B — npm / npx
+
+No install required — run directly with `npx`:
+
+```bash
+GOOGLE_MAPS_API_KEY=your_key_here \
+MCP_AUTH_TOKEN=your_secret_token \
+npx mcp-server-google-maps
+# google-maps-mcp listening on port 3003
+```
+
+Or install globally:
+
+```bash
+npm install -g mcp-server-google-maps
+GOOGLE_MAPS_API_KEY=your_key_here MCP_AUTH_TOKEN=your_secret_token mcp-server-google-maps
+```
+
+Set `PORT=` to change the default port (`3003`).
+
+---
+
+### Option C — Build from source
 
 ```bash
 git clone https://github.com/apurvaumredkar/google-maps-mcp.git
@@ -91,7 +113,7 @@ GOOGLE_MAPS_API_KEY=... MCP_AUTH_TOKEN=... npm start
 # google-maps-mcp listening on port 3003
 ```
 
-### Option C — Docker Compose (self-hosted stack)
+### Option D — Docker Compose (self-hosted stack)
 
 Add to your `docker-compose.yml`:
 
@@ -433,13 +455,15 @@ curl http://localhost:3003/health
 TOKEN=your_secret_token
 curl -s -X POST http://localhost:3003/mcp \
   -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
   -H "X-Api-Key: $TOKEN" \
   -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1"}},"id":1}'
 
-# List tools (use session ID from initialize response header)
+# List tools (use session ID from Mcp-Session-Id response header)
 SESSION=<Mcp-Session-Id from above>
 curl -s -X POST http://localhost:3003/mcp \
   -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
   -H "X-Api-Key: $TOKEN" \
   -H "Mcp-Session-Id: $SESSION" \
   -d '{"jsonrpc":"2.0","method":"tools/list","id":2}'
