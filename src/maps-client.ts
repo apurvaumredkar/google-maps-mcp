@@ -20,7 +20,7 @@ async function mapsGet(baseUrl: string, params: Record<string, string>): Promise
   const qs = new URLSearchParams({ ...params, key: MAPS_API_KEY });
   const res = await fetch(`${baseUrl}?${qs}`);
   const body = await res.text();
-  if (!res.ok) throw new Error(`Maps API ${res.status}: ${body}`);
+  if (!res.ok) throw new Error(`Maps API error (${res.status})`);
   return JSON.parse(body);
 }
 
@@ -39,7 +39,7 @@ async function mapsPost(
     body: JSON.stringify(body),
   });
   const text = await res.text();
-  if (!res.ok) throw new Error(`Maps API ${res.status}: ${text}`);
+  if (!res.ok) throw new Error(`Maps API error (${res.status})`);
   return JSON.parse(text);
 }
 
@@ -56,7 +56,7 @@ async function mapsGetNew(
     },
   });
   const text = await res.text();
-  if (!res.ok) throw new Error(`Maps API ${res.status}: ${text}`);
+  if (!res.ok) throw new Error(`Maps API error (${res.status})`);
   return JSON.parse(text);
 }
 
@@ -219,16 +219,13 @@ export async function optimizeTours(projectId: string, body: unknown): Promise<u
 
 export function parseWaypoint(input: string): unknown {
   // If input looks like "lat,lng" use latLng, otherwise use address
-  const latLngMatch = input.match(/^(-?\d+\.?\d*),\s*(-?\d+\.?\d*)$/);
+  const latLngMatch = input.match(/^(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)$/);
   if (latLngMatch) {
-    return {
-      location: {
-        latLng: {
-          latitude: parseFloat(latLngMatch[1]),
-          longitude: parseFloat(latLngMatch[2]),
-        },
-      },
-    };
+    const latitude = parseFloat(latLngMatch[1]);
+    const longitude = parseFloat(latLngMatch[2]);
+    if (latitude < -90 || latitude > 90) throw new Error(`Invalid latitude: ${latitude} (must be -90..90)`);
+    if (longitude < -180 || longitude > 180) throw new Error(`Invalid longitude: ${longitude} (must be -180..180)`);
+    return { location: { latLng: { latitude, longitude } } };
   }
   return { address: input };
 }

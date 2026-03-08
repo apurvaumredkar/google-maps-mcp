@@ -12,22 +12,22 @@ export function registerRoutesTools(server: McpServer): void {
       description:
         'Get turn-by-turn directions between an origin and destination, with real-time traffic data. Supports driving, walking, cycling, and transit. Returns distance, duration, and step-by-step legs.',
       inputSchema: {
-        origin: z.string().describe("Origin — address or 'lat,lng'"),
-        destination: z.string().describe("Destination — address or 'lat,lng'"),
+        origin: z.string().max(500).describe("Origin — address or 'lat,lng'"),
+        destination: z.string().max(500).describe("Destination — address or 'lat,lng'"),
         travel_mode: z.enum(['DRIVE', 'WALK', 'BICYCLE', 'TRANSIT', 'TWO_WHEELER'])
           .default('DRIVE')
           .describe('Mode of travel'),
-        intermediates: z.array(z.string()).optional().describe(
+        intermediates: z.array(z.string().max(500)).max(25).optional().describe(
           "Intermediate waypoints — array of addresses or 'lat,lng' strings",
         ),
-        departure_time: z.string().optional().describe(
+        departure_time: z.string().max(50).optional().describe(
           'ISO 8601 datetime for traffic-aware routing (e.g. 2025-06-15T09:00:00Z)',
         ),
         avoid_tolls: z.boolean().default(false).optional(),
         avoid_highways: z.boolean().default(false).optional(),
         avoid_ferries: z.boolean().default(false).optional(),
         units: z.enum(['METRIC', 'IMPERIAL']).default('METRIC').optional(),
-        language_code: z.string().default('en').optional(),
+        language_code: z.string().max(10).default('en').optional(),
         compute_alternative_routes: z.boolean().default(false).optional().describe(
           'Return up to 3 alternative routes',
         ),
@@ -96,16 +96,16 @@ export function registerRoutesTools(server: McpServer): void {
       description:
         'Compute travel time and distance between multiple origins and destinations simultaneously. Great for comparing travel options or finding the closest point from many locations.',
       inputSchema: {
-        origins: z.array(z.string()).min(1).max(25).describe(
+        origins: z.array(z.string().max(500)).min(1).max(25).describe(
           "Array of origin addresses or 'lat,lng' strings",
         ),
-        destinations: z.array(z.string()).min(1).max(25).describe(
+        destinations: z.array(z.string().max(500)).min(1).max(25).describe(
           "Array of destination addresses or 'lat,lng' strings",
         ),
         travel_mode: z.enum(['DRIVE', 'WALK', 'BICYCLE', 'TRANSIT']).default('DRIVE'),
-        departure_time: z.string().optional().describe('ISO 8601 datetime for traffic-aware results'),
+        departure_time: z.string().max(50).optional().describe('ISO 8601 datetime for traffic-aware results'),
         units: z.enum(['METRIC', 'IMPERIAL']).default('METRIC').optional(),
-        language_code: z.string().default('en').optional(),
+        language_code: z.string().max(10).default('en').optional(),
       },
     },
     async ({ origins, destinations, travel_mode, departure_time, units, language_code }) => {
@@ -137,13 +137,13 @@ export function registerRoutesTools(server: McpServer): void {
       description:
         'Optimizes the order of stops for one or more vehicles to minimize total travel time/distance. Ideal for planning road trips with multiple destinations. Requires GOOGLE_CLOUD_PROJECT_ID to be configured.',
       inputSchema: {
-        vehicle_start: z.string().describe("Vehicle start location — address or 'lat,lng'"),
-        vehicle_end: z.string().optional().describe(
+        vehicle_start: z.string().max(500).describe("Vehicle start location — address or 'lat,lng'"),
+        vehicle_end: z.string().max(500).optional().describe(
           "Vehicle end location — defaults to start if not provided",
         ),
         visits: z.array(z.object({
-          address: z.string().describe("Stop address or 'lat,lng'"),
-          label: z.string().optional().describe('Human-readable label for this stop'),
+          address: z.string().max(500).describe("Stop address or 'lat,lng'"),
+          label: z.string().max(200).optional().describe('Human-readable label for this stop'),
           duration_minutes: z.number().int().min(0).default(0).optional().describe(
             'Time to spend at this stop in minutes',
           ),
@@ -162,16 +162,14 @@ export function registerRoutesTools(server: McpServer): void {
         }
 
         const parseLocation = (addr: string) => {
-          const m = addr.match(/^(-?\d+\.?\d*),\s*(-?\d+\.?\d*)$/);
+          const m = addr.match(/^(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)$/);
           if (m) {
-            return {
-              latitude: parseFloat(m[1]),
-              longitude: parseFloat(m[2]),
-            };
+            const latitude = parseFloat(m[1]);
+            const longitude = parseFloat(m[2]);
+            if (latitude < -90 || latitude > 90) throw new Error(`Invalid latitude: ${latitude}`);
+            if (longitude < -180 || longitude > 180) throw new Error(`Invalid longitude: ${longitude}`);
+            return { latitude, longitude };
           }
-          // For the optimization API, addresses need to be geocoded first.
-          // We return a placeholder — the API accepts waypoints by address string in the `placeId` field,
-          // but the simplest approach is to note this limitation.
           throw new Error(
             `Route Optimization API requires lat,lng coordinates. ` +
             `Please geocode "${addr}" first using places_geocode.`,
