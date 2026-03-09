@@ -6,7 +6,9 @@ import { createMcpServer } from './server.js';
 
 const MCP_AUTH_TOKEN = process.env.MCP_AUTH_TOKEN ?? '';
 if (!MCP_AUTH_TOKEN) {
-  console.warn('WARNING: MCP_AUTH_TOKEN is not set. All /mcp requests will be rejected.');
+  console.info('INFO: MCP_AUTH_TOKEN is not set. Running without authentication (suitable for local use only).');
+} else {
+  console.info('INFO: MCP_AUTH_TOKEN is set. X-Api-Key authentication enabled.');
 }
 
 // ── Session store ──────────────────────────────────────────────────────────────
@@ -78,13 +80,15 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
     return;
   }
 
-  // Auth check — constant-time comparison to prevent timing attacks
-  const rawApiKey = req.headers['x-api-key'];
-  const apiKey = Array.isArray(rawApiKey) ? rawApiKey[0] : rawApiKey;
-  if (!apiKey || !safeCompare(apiKey, MCP_AUTH_TOKEN)) {
-    req.resume(); // drain so socket stays clean
-    sendJson(res, 401, { error: 'Unauthorized' });
-    return;
+  // Auth check — only enforced when MCP_AUTH_TOKEN is set
+  if (MCP_AUTH_TOKEN) {
+    const rawApiKey = req.headers['x-api-key'];
+    const apiKey = Array.isArray(rawApiKey) ? rawApiKey[0] : rawApiKey;
+    if (!apiKey || !safeCompare(apiKey, MCP_AUTH_TOKEN)) {
+      req.resume(); // drain so socket stays clean
+      sendJson(res, 401, { error: 'Unauthorized' });
+      return;
+    }
   }
 
   const sessionId = req.headers['mcp-session-id'] as string | undefined;

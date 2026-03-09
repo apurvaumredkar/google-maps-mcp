@@ -138,7 +138,7 @@ services:
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `GOOGLE_MAPS_API_KEY` | Yes | Your Google Maps Platform API key |
-| `MCP_AUTH_TOKEN` | Yes | Secret token clients must send in the `X-Api-Key` header. Generate one with `openssl rand -hex 32` |
+| `MCP_AUTH_TOKEN` | No | Secret token clients must send in the `X-Api-Key` header. Omit for local-only use; set when exposing the server over a network or proxy. Generate with `openssl rand -hex 32` |
 | `PORT` | No | HTTP port (default: `3003`) |
 | `GOOGLE_CLOUD_PROJECT_ID` | No | Required only for `routes_optimize` (Route Optimization API) |
 
@@ -148,10 +148,12 @@ services:
 
 The server exposes a single endpoint: `POST/GET http://localhost:3003/mcp`
 
-All requests must include the header:
+If `MCP_AUTH_TOKEN` is set, all requests must include the header:
 ```
 X-Api-Key: <MCP_AUTH_TOKEN>
 ```
+
+If `MCP_AUTH_TOKEN` is not set, no header is required (suitable for local-only use).
 
 ### Claude Desktop
 
