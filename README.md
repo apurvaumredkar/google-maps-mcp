@@ -25,6 +25,7 @@ Works with Claude Desktop and any other MCP-compatible client.
 ## Prerequisites
 
 - **Node.js 22+** (or Docker)
+- **mcp-remote** — install once globally: `npm install -g mcp-remote`
 - A **Google Maps Platform API key** with the relevant APIs enabled (see below)
 - A Google Cloud project with billing enabled
 
@@ -174,25 +175,6 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
   }
 }
 ```
-
-> **Windows + WSL**: if the server runs inside WSL, use the full node path:
-> ```json
-> {
->   "mcpServers": {
->     "google-maps": {
->       "command": "wsl",
->       "args": [
->         "--",
->         "/home/user/.nvm/versions/node/v25.2.1/bin/node",
->         "/home/user/.nvm/versions/node/v25.2.1/bin/mcp-remote",
->         "http://localhost:3003/mcp",
->         "--header",
->         "X-Api-Key: your_secret_token"
->       ]
->     }
->   }
-> }
-> ```
 
 ---
 
