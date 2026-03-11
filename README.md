@@ -147,6 +147,8 @@ services:
 
 ## Connecting a Client
 
+This server works with **any MCP-compatible client** — Claude Desktop, LM Studio, Cursor, or any other tool that supports the Model Context Protocol. The config format may differ per client, but the endpoint and auth are the same.
+
 The server exposes a single endpoint: `POST/GET http://localhost:3003/mcp`
 
 If `MCP_AUTH_TOKEN` is set, all requests must include the header:
@@ -156,7 +158,7 @@ X-Api-Key: <MCP_AUTH_TOKEN>
 
 If `MCP_AUTH_TOKEN` is not set, no header is required (suitable for local-only use).
 
-### Claude Desktop
+### Claude Desktop (example)
 
 Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
 
