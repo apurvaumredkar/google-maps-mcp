@@ -31,6 +31,9 @@ export function registerRoutesTools(server: McpServer): void {
         compute_alternative_routes: z.boolean().default(false).optional().describe(
           'Return up to 3 alternative routes',
         ),
+        transit_allowed_modes: z.array(z.enum(['BUS', 'SUBWAY', 'TRAIN', 'LIGHT_RAIL', 'RAIL']))
+          .optional()
+          .describe('Filter transit to specific vehicle types (only applies when travel_mode is TRANSIT)'),
       },
     },
     async ({
@@ -45,6 +48,7 @@ export function registerRoutesTools(server: McpServer): void {
       units,
       language_code,
       compute_alternative_routes,
+      transit_allowed_modes,
     }) => {
       try {
         const routeModifiers: Record<string, boolean> = {};
@@ -69,6 +73,9 @@ export function registerRoutesTools(server: McpServer): void {
         }
         if (departure_time) {
           body.departureTime = departure_time;
+        }
+        if (transit_allowed_modes && transit_allowed_modes.length > 0) {
+          body.transitPreferences = { allowedTravelModes: transit_allowed_modes };
         }
 
         const fieldMask = [
