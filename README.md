@@ -253,6 +253,7 @@ Turn-by-turn directions with real-time traffic.
 | `origin` | string | required | Address or `lat,lng` |
 | `destination` | string | required | Address or `lat,lng` |
 | `travel_mode` | enum | `DRIVE` | `DRIVE` \| `WALK` \| `BICYCLE` \| `TRANSIT` \| `TWO_WHEELER` |
+| `transit_allowed_modes` | enum[] | — | Filter transit to specific vehicle types: `BUS` \| `SUBWAY` \| `TRAIN` \| `LIGHT_RAIL` \| `RAIL`. Only applies when `travel_mode` is `TRANSIT` |
 | `intermediates` | string[] | — | Waypoints between origin and destination |
 | `departure_time` | string | — | ISO 8601 datetime for traffic-aware routing |
 | `avoid_tolls` | boolean | `false` | Avoid toll roads |
