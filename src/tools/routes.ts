@@ -10,7 +10,7 @@ export function registerRoutesTools(server: McpServer): void {
     {
       title: 'Compute Route',
       description:
-        'Get turn-by-turn directions between an origin and destination, with real-time traffic data. Supports driving, walking, cycling, and transit. Returns distance, duration, and step-by-step legs.',
+        'Get turn-by-turn directions between an origin and destination, with real-time traffic data. Supports driving, walking, cycling, and transit. Returns distance, duration, and step-by-step legs. Note: TRANSIT mode does not support intermediates (waypoints) or route modifiers (avoid_tolls, avoid_highways, avoid_ferries) — compute separate legs instead.',
       inputSchema: {
         origin: z.string().max(500).describe("Origin — address or 'lat,lng'"),
         destination: z.string().max(500).describe("Destination — address or 'lat,lng'"),
@@ -51,6 +51,20 @@ export function registerRoutesTools(server: McpServer): void {
       transit_allowed_modes,
     }) => {
       try {
+        if (travel_mode === 'TRANSIT') {
+          if (intermediates && intermediates.length > 0) {
+            throw new Error(
+              'TRANSIT mode does not support intermediate waypoints. ' +
+              'Compute separate legs instead (A→B, then B→C).',
+            );
+          }
+          if (avoid_tolls || avoid_highways || avoid_ferries) {
+            throw new Error(
+              'TRANSIT mode does not support route modifiers (avoid_tolls, avoid_highways, avoid_ferries).',
+            );
+          }
+        }
+
         const routeModifiers: Record<string, boolean> = {};
         if (avoid_tolls) routeModifiers.avoidTolls = true;
         if (avoid_highways) routeModifiers.avoidHighways = true;
