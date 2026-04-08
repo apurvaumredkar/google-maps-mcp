@@ -248,17 +248,19 @@ Returns a direct Street View panorama image URL.
 #### `routes_compute` — Compute Route
 Turn-by-turn directions with real-time traffic.
 
+> **TRANSIT restrictions:** `TRANSIT` mode does not support `intermediates` (waypoints) or route modifiers (`avoid_tolls`, `avoid_highways`, `avoid_ferries`). Passing these with `travel_mode: TRANSIT` returns a clear error — compute separate legs instead (A→B, then B→C).
+
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `origin` | string | required | Address or `lat,lng` |
 | `destination` | string | required | Address or `lat,lng` |
 | `travel_mode` | enum | `DRIVE` | `DRIVE` \| `WALK` \| `BICYCLE` \| `TRANSIT` \| `TWO_WHEELER` |
 | `transit_allowed_modes` | enum[] | — | Filter transit to specific vehicle types: `BUS` \| `SUBWAY` \| `TRAIN` \| `LIGHT_RAIL` \| `RAIL`. Only applies when `travel_mode` is `TRANSIT` |
-| `intermediates` | string[] | — | Waypoints between origin and destination |
+| `intermediates` | string[] | — | Waypoints between origin and destination (not supported with `TRANSIT`) |
 | `departure_time` | string | — | ISO 8601 datetime for traffic-aware routing |
-| `avoid_tolls` | boolean | `false` | Avoid toll roads |
-| `avoid_highways` | boolean | `false` | Avoid highways |
-| `avoid_ferries` | boolean | `false` | Avoid ferries |
+| `avoid_tolls` | boolean | `false` | Avoid toll roads (not supported with `TRANSIT`) |
+| `avoid_highways` | boolean | `false` | Avoid highways (not supported with `TRANSIT`) |
+| `avoid_ferries` | boolean | `false` | Avoid ferries (not supported with `TRANSIT`) |
 | `units` | enum | `METRIC` | `METRIC` \| `IMPERIAL` |
 | `compute_alternative_routes` | boolean | `false` | Return up to 3 alternatives |
 
@@ -462,3 +464,14 @@ curl -s -X POST http://localhost:3003/mcp \
 > ```
 
 ---
+
+## Changelog
+
+### v1.0.4
+- **`routes_compute`**: Added early validation for TRANSIT mode — passing `intermediates` or route modifiers (`avoid_tolls`, `avoid_highways`, `avoid_ferries`) now returns a clear, actionable error instead of a cryptic 400 from the Google API.
+
+### v1.0.3
+- **`routes_compute`**: Added `transit_allowed_modes` parameter to filter transit routes by vehicle type (`BUS`, `SUBWAY`, `TRAIN`, `LIGHT_RAIL`, `RAIL`).
+
+### v1.0.2
+- Initial public release with 15 tools across Maps, Routes, and Places categories.
