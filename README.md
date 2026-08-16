@@ -1,3 +1,5 @@
+
+
 # google-maps-mcp
 
 A TypeScript [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that exposes Google Maps Platform APIs as tools for LLMs. Gives AI assistants real, structured map data — directions, transit routes, place search, address validation, photos, elevation, and more — instead of guessing from training data.
@@ -195,7 +197,7 @@ Returns a direct image URL for a static map.
 | `maptype` | enum | `roadmap` | `roadmap` \| `satellite` \| `terrain` \| `hybrid` |
 | `markers` | string | — | Marker spec e.g. `color:red\|48.8566,2.3522` |
 | `path` | string | — | Path spec for drawing routes |
-| `format` | enum | `png` | `png` \| `jpg` \| `gif` |
+| `format` | enum | `png` | `png` \| `png8` \| `png32` \| `gif` \| `jpg` |
 | `scale` | enum | `1` | `1` = standard, `2` = HiDPI/retina |
 | `language` | string | — | BCP 47 language code for labels |
 | `region` | string | — | ISO 3166-1 alpha-2 region code |
